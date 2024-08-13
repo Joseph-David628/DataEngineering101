@@ -1,11 +1,9 @@
 Question: Imagine that you are hired to enable data analytics; where would you start? How would you go about gathering requirements?
 
-Data sources: extraction
-Types of data, how will you use the data: Data warehouse vs. lake. 
+I would start by asking stakeholders to explain their vision for data analytics for their organization. What are their business needs
+and how do they hope to use data to address it? Do they already have the necessary raw data, and, if not, is it obtainable? What are some
+questions you hope to answer? Are they static questions that can be answered now or are they questions whose answers change frequently
+and require constantly updating data? Another important consideration is the amount of data and how fast they would like their data
+analytics program to be. Do they have the computational capacity to handle it? 
 
-Who will the end-users be? How will they be using the data?
-How do we obtain the data?
-What will the raw data look like?
-How can/should we transform the data?
-How will we store it?
 
