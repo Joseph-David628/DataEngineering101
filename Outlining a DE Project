@@ -1,0 +1,11 @@
+Question: Imagine that you are hired to enable data analytics; where would you start? How would you go about gathering requirements?
+
+Data sources: extraction
+Types of data, how will you use the data: Data warehouse vs. lake. 
+
+Who will the end-users be? How will they be using the data?
+How do we obtain the data?
+What will the raw data look like?
+How can/should we transform the data?
+How will we store it?
+
