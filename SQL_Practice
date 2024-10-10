@@ -1,13 +1,16 @@
-Q9 
+Q8: The market share for a given nation within a given region is defined as the fraction of the revenue, the sum of [l_extendedprice * (1-l_discount)], 
+from the products of a specified type in that region that was supplied by suppli- ers from the given nation. The query determines this for the years 1995 
+and 1996 presented in this order.
+
 select
     o_year,
     sum(case
-            when nation = 'ARGENTINA'
+            when nation = 'BRAZIL'
             then volume
             else 0 end) / sum(volume) as market_share
 from (
     select strftime('%Y', o_orderdate) as o_year,
-        sum(l_extendedprice * (1-l_discount)) as volume,
+        l_extendedprice * (1-l_discount) as volume,
         n_name as nation
     from
         orders,
@@ -21,9 +24,10 @@ from (
         and s_nationkey = n_nationkey
         and n_regionkey = r_regionkey
         and l_orderkey = o_orderkey
+        and l_partkey = p_partkey
         and (strftime('%Y', o_orderdate) = '1995' or strftime('%Y', o_orderdate) = '1996')
         and r_name = 'AMERICA'
-        and p_type = 'ECONOMY PLATED TIN'
+        and p_type = 'ECONOMY ANONDIZED'
 )
 group by
     o_year
