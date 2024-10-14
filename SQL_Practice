@@ -221,3 +221,29 @@ order by
     volume desc
 limit 10;
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q16: The Parts/Supplier Relationship Query counts the number of suppliers who can supply parts that satisfy a particular customer's 
+requirements. The customer is interested in parts of eight different sizes as long as they are not of a given type, not of a given 
+brand, and not from a supplier who has had complaints registered at the Better Business Bureau. Results must be presented in descending 
+count and ascending brand, type, and size.
+
+select  
+    p_type,
+    p_brand,
+    p_size,
+    count(distinct ps_suppkey) as supplier_count
+from
+    partsupp,
+    part,
+    supplier
+where   
+    ps_partkey = p_partkey
+    and s_suppkey = ps_suppkey
+    and p_brand <> 'Brand#45'
+    and p_type not like 'MEDIUM POLISHED%'
+    and p_size in (49,14,23,45,19,3,36,9)
+    and s_comment not like '%Customer%Complaints%'
+group by
+    p_type, 
+    p_brand, 
+    p_size;
