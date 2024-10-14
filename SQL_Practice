@@ -73,4 +73,59 @@ order by
     n_name,
     o_year desc;
 
+Q10: The Returned Item Reporting Query finds the top 20 customers, in terms of their effect on lost revenue for a given quarter, who 
+have returned parts. The query considers only parts that were ordered in the specified quarter. The query lists the customer's name, 
+address, nation, phone number, account balance, comment information and revenue lost. The customers are listed in descending order of 
+lost revenue. Revenue lost is defined as sum(l_extendedprice*(1-l_discount)) for all qualifying lineitems.
+
+select 
+    c_name,
+    sum(l_extendedprice * (1-l_discount)) as lost_revenue
+from
+    lineitem,
+    customer,
+    orders
+where
+    l_orderkey = o_orderkey
+    and o_custkey = c_custkey
+    and l_returnflag = 'R'
+    and o_orderdate >= '1993-10-01'
+    and o_orderdate < '1994-01-01'
+group by
+    c_custkey
+order by
+    lost_revenue desc
+limit 20;
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q11: The Important Stock Identification Query finds, from scanning the available stock of suppliers in a given nation, all the parts 
+that represent a significant percentage of the total value of all available parts. The query displays the part number and the value 
+of those parts in descending order of value.
+
+select
+    ps_partkey,
+    sum(ps_availqty * ps_supplycost) as avail_money
+from 
+    supplier,
+    partsupp,
+    nation
+where
+    s_suppkey = ps_suppkey
+    and s_nationkey = n_nationkey
+    and n_name = 'GERMANY'
+group by
+    ps_partkey having
+        sum(ps_availqty * ps_supplycost) > (
+            select sum(ps_availqty * ps_supplycost) * .0001
+            from supplier, nation, partsupp
+            where s_suppkey = ps_suppkey
+                and s_nationkey = n_nationkey
+                and n_name = 'GERMANY'
+        )
+order by 
+    avail_money desc
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q12: The Shipping Modes and Order Priority Query counts, by ship mode, for lineitems actually received by customers in a given year, 
+the number of lineitems belonging to orders for which the l_receiptdate exceeds the l_commitdate for two different specified ship 
+modes. Only lineitems that were actually shipped before the l_commitdate are con- sidered. The late lineitems are partitioned into 
+two groups, those with priority URGENT or HIGH, and those with a priority other than URGENT or HIGH.
