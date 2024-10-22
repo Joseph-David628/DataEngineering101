@@ -247,3 +247,51 @@ group by
     p_type, 
     p_brand, 
     p_size;
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q17: The Small-Quantity-Order Revenue Query considers parts of a given brand and with a given container type and determines the 
+average lineitem quantity of such parts ordered for all orders (past and pending) in the 7-year data- base. What would be the average 
+yearly gross (undiscounted) loss in revenue if orders for these parts with a quantity of less than 20% of this average were no longer 
+taken?
+
+select sum(l_extendedprice) / 7.0 as avg_loss
+from 
+    (select 
+        avg(l_quantity) as avg_quantity
+    from 
+        lineitem,
+        part
+    where 
+        l_partkey = p_partkey
+        and p_brand = 'Brand#23'
+        and p_container = 'MED BOX'),
+    lineitem,
+    part
+where 
+    l_partkey = p_partkey
+    and p_brand = 'Brand#23'
+    and p_container = 'MED BOX'
+    and l_quantity < .2 * avg_quantity
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q18: The Large Volume Customer Query finds a list of the top 100 customers who have ever placed large quantity orders. The query 
+lists the customer name, customer key, the order key, date and total price and the quantity for the order.
+
+select 
+    c_name, 
+    c_custkey, 
+    o_orderkey, 
+    o_orderdate, 
+    o_totalprice, 
+    sum(l_quantity) as quantity
+from 
+    lineitem,
+    orders,
+    customer
+where
+    l_orderkey = o_orderkey
+    and o_custkey = c_custkey
+group by
+    o_orderkey
+order by quantity desc
+limit 100;
