@@ -295,3 +295,69 @@ group by
     o_orderkey
 order by quantity desc
 limit 100;
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q19: The Discounted Revenue query finds the gross discounted revenue for all orders for three different types of parts that were 
+shipped by air and delivered in person. Parts are selected based on the combination of specific brands, a list of containers, and a 
+range of sizes.
+
+select 
+    sum(l_extendedprice * (1-l_discount)) 
+from 
+    lineitem,
+    part
+where   
+    (l_partkey = p_partkey
+    and p_brand = 'Brand#12'
+    and p_size between 1 and 5
+    and p_container in ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG')
+    and l_quantity >= 1 and l_quantity <= 11
+    and l_shipmode in  ('AIR', 'AIR REG')
+    and l_shipinstruct = 'DELIVER IN PERSON')
+    or
+    (l_partkey = p_partkey
+    and p_brand = 'Brand#23'
+    and p_size between 1 and 10
+    and p_container in ('MED BAG', 'MED BOX', 'MED PACK', 'MED PKG')
+    and l_quantity >= 10 and l_quantity <= 20
+    and l_shipmode in  ('AIR', 'AIR REG')
+    and l_shipinstruct = 'DELIVER IN PERSON')
+    or 
+    (l_partkey = p_partkey
+    and p_brand = 'Brand#34'
+    and p_size between 1 and 15
+    and p_container in ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG')
+    and l_quantity >= 20 and l_quantity <= 30
+    and l_shipmode in  ('AIR', 'AIR REG')
+    and l_shipinstruct = 'DELIVER IN PERSON');
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q20: The Potential Part Promotion query identifies suppliers who have an excess of a given part available; an excess is defined to be 
+more than 50% of the parts like the given part that the supplier shipped in a given year for a given nation. Only parts whose names 
+share a certain naming convention are considered.
+
+with excess_values as (
+    select ps_suppkey as suppkey, 0.5 * sum(l_quantity) as quantity
+    from lineitem, partsupp
+    where   
+        l_suppkey = ps_suppkey
+        and strftime('%Y', l_shipdate) = '1994'
+        and ps_partkey in (select p_partkey from part where p_name like 'forest%')
+    group by suppkey
+)
+
+select s_name, s_address
+from 
+    partsupp,
+    supplier,
+    excess_values
+where   
+    ps_suppkey = suppkey
+    and ps_availqty > quantity
+    and ps_suppkey = s_suppkey
+    and s_nationkey in (select n_nationkey from nation where n_name = 'CANADA')
+    and ps_partkey in (select p_partkey from part where p_name like 'forest%')
+order by s_name;
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
