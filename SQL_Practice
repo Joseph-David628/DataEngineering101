@@ -1,3 +1,84 @@
+Q1: The Pricing Summary Report Query provides a summary pricing report for all lineitems shipped as of a given date. The date is 
+within 60 - 120 days of the greatest ship date contained in the database. The query lists totals for extended price, discounted 
+extended price, discounted extended price plus tax, average quantity, average extended price, and average discount. These aggregates 
+are grouped by RETURNFLAG and LINESTATUS, and listed in ascending order of RETURNFLAG and LINESTATUS. A count of the number of 
+lineitems in each group is included.
+
+------------------------------------------------------------------------------------------------------------------------------------
+Q2: The Minimum Cost Supplier Query finds, in a given region, for each part of a certain type and size, the supplier who can supply
+it at minimum cost. If several suppliers in that region offer the desired part type and size at the same (minimum) cost, the query
+lists the parts from suppliers with the 100 highest account balances. For each supplier, the query lists the supplier's account
+balance, name and nation; the part's number and manufacturer; the supplier's address, phone number and comment information.
+
+------------------------------------------------------------------------------------------------------------------------------------
+Q3: The Shipping Priority Query retrieves the shipping priority and potential revenue, defined as the sum of 
+l_extendedprice * (1-l_discount), of the orders having the largest revenue among those that had not been shipped as of a given date.
+Orders are listed in decreasing order of revenue. If more than 10 unshipped orders exist, only the 10 orders with the largest revenue 
+are listed.
+
+------------------------------------------------------------------------------------------------------------------------------------
+Q4: The Order Priority Checking Query counts the number of orders ordered in a given quarter of a given year in which at least one 
+lineitem was received by the customer later than its committed date. The query lists the count of such orders for each order priority 
+sorted in ascending priority order.
+
+select count(*), o_orderpriority
+from
+    orders
+where
+    o_orderdate >= '1996-01-02'
+    and o_orderdate < '1996-04-02'
+    and exists (
+        select *
+        from 
+            lineitem
+        where
+            orders.o_orderkey = lineitem.l_orderkey
+            and l_receiptdate > l_commitdate
+    )
+group by
+    o_orderpriority
+order by
+    o_orderpriority;
+------------------------------------------------------------------------------------------------------------------------------------
+Q5: The Local Supplier Volume Query lists for each nation in a region the revenue volume that resulted from lineitem transactions 
+in which the customer ordering parts and the supplier filling them were both within that nation. The query is run in order to 
+determine whether to institute local distribution centers in a given region. The query consid- ers only parts ordered in a given year. 
+The query displays the nations and revenue volume in descending order by revenue. Revenue volume for all qualifying lineitems in a 
+particular nation is defined as sum(l_extendedprice * (1 - l_discount)).
+
+select n_name, sum(l_extendedprice * (1-l_discount)) as revenue
+from 
+    customer,
+    orders,
+    lineitem,
+    supplier,
+    nation,
+    region
+where 
+    o_orderkey = c_custkey
+    and o_orderkey = l_orderkey
+    and l_suppkey = s_suppkey
+    and s_nationkey = c_nationkey
+    and s_nationkey = n_nationkey
+    and n_regionkey = r_regionkey
+    and o_orderdate >= '1994-01-01'
+    and o_orderdate <= '1994-12-31'
+    and r_name = 'ASIA'
+group by n_name
+order by revenue desc;
+------------------------------------------------------------------------------------------------------------------------------------
+Q6: The Forecasting Revenue Change Query considers all the lineitems shipped in a given year with discounts between 
+DISCOUNT-0.01 and DISCOUNT+0.01. The query lists the amount by which the total revenue would have increased if these discounts had 
+been eliminated for lineitems with l_quantity less than quantity. Note that the potential revenue increase is equal to the sum of 
+[l_extendedprice * l_discount] for all lineitems with discounts and quantities in the qualifying range.
+
+------------------------------------------------------------------------------------------------------------------------------------
+Q7: The Volume Shipping Query finds, for two given nations, the gross discounted revenues derived from lineitems in which parts were
+shipped from a supplier in either nation to a customer in the other nation during 1995 and 1996. The query lists the supplier nation,
+the customer nation, the year, and the revenue from shipments that took place in that year. The query orders the answer by Supplier 
+nation, Customer nation, and year (all ascending).
+
+------------------------------------------------------------------------------------------------------------------------------------
 Q8: The market share for a given nation within a given region is defined as the fraction of the revenue, the sum of [l_extendedprice * (1-l_discount)], 
 from the products of a specified type in that region that was supplied by suppli- ers from the given nation. The query determines this for the years 1995 
 and 1996 presented in this order.
