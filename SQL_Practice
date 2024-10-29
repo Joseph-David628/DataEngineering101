@@ -360,4 +360,49 @@ where
 order by s_name;
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q21: The Suppliers Who Kept Orders Waiting query identifies suppliers, for a given nation, whose product was part of a multi-supplier 
+order (with current status of 'F') where they were the only supplier who failed to meet the committed delivery date.
 
+with grouped_lineitems as (select 
+    o_orderkey as gl_orderkey, count(l_suppkey) as num_suppliers
+from 
+    lineitem,
+    orders
+where
+    o_orderkey = l_orderkey
+    and o_orderstatus = 'F'
+group by 
+    l_orderkey),
+
+fsfs as (select
+    gl_orderkey as fs_orderkey, count(l_suppkey) as fs_num_suppliers
+from 
+    grouped_lineitems,
+    lineitem
+where 
+    l_orderkey = gl_orderkey
+    and l_commitdate < l_shipdate
+    and num_suppliers > 1
+group by 
+    fs_orderkey)
+
+select 
+    s_name, count(s_name) as mess_ups
+from 
+    fsfs,
+    lineitem,
+    supplier
+where 
+    fs_orderkey = l_orderkey
+    and l_suppkey = s_suppkey
+    and fs_num_suppliers = 1
+    and s_nationkey = 20
+    and s_name = 'Supplier#000002829'
+group by
+    s_name
+order by 
+    mess_ups desc,
+    s_name;
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q22: 
